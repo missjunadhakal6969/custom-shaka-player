@@ -18,7 +18,7 @@ async function initPlayer() {
     player.addEventListener('error', (e) => console.error('Shaka Error', e));
 
     try {
-        await player.load('https://cdn.bitmovin.com/content/assets/sintel/hls/playlist.m3u8');
+        await player.load('https://habetar.com/stream/itIgk4ozBM9qbKRmiJOAfA/kjhhiuahiuhgihdf/1768361276/66965491/master.m3u8');
         setupUIHandlers();
         buildVideoTracks();
         buildAudioTracks();
@@ -271,5 +271,6 @@ function startStatsInterval() {
         document.getElementById('stat-bitrate').textContent = (stats.streamBandwidth / 1000000).toFixed(2) + ' Mbps';
     }, 1000);
 }
+
 
 document.addEventListener('DOMContentLoaded', initPlayer);
