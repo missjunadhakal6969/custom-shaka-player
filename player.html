@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Custom Shaka Player</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <div id="loader" class="spinner"></div>
+        <video id="video" autoplay playsinline muted style="width:100%; height:100%; background:black;"></video>
+        <div class="video-center-controls" id="center-controls">
+            <img src="./icons/backward.svg" class="backward-btn" onclick="seekBy(-10)" />
+            <img src="./icons/pause.svg" class="play_pause-btn" id="mainPlayBtn" />
+            <img src="./icons/forward.svg" class="forward-btn" onclick="seekBy(10)" />
+        </div>
+        <div class="video-stats" id="stats-panel">
+            <div class="stats-header">Playback Info</div>
+            <div class="stats-row"><span>Resolution</span><strong id="stat-res">-</strong></div>
+            <div class="stats-row"><span>Frame Rate</span><strong id="stat-fps">-</strong></div>
+            <div class="stats-row"><span>Codec</span><strong id="stat-codec">-</strong></div>
+            <div class="stats-row"><span>Dropped Frames</span><strong id="stat-dropped">0</strong></div>
+            <div class="stats-row"><span>Buffer</span><strong id="stat-buffer">0s</strong></div>
+            <div class="stats-row"><span>Bitrate</span><strong id="stat-bitrate">0 Mbps</strong></div>
+        </div>
+        <div class="controls">
+            <div class="progress-wrapper">
+                <div class="time" id="current-time">00:00</div>
+                <div class="progress-container" id="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                    <div class="progress-knob" id="progress-knob"></div>
+                </div>
+                <div class="time" id="total-time">00:00</div>
+            </div>
+            <div class="row">
+                <div class="left">
+                    <img src="./icons/stop.svg" onclick="location.reload()" />
+                    <div class="title">Video Title Names</div>
+                </div>
+                <div class="right">
+                    <img src="./icons/info.svg" class="info-btn" id="info-btn" />
+                    <img src="./icons/pip.svg" class="pip-btn" id="pip-btn"  onclick="seekBy(10)"  />
+                    <div class="setting-section">
+                        <img src="./icons/settings.svg" class="setting-btn" id="setting-btn" />
+                        <div class="settings-menu" id="settings-menu">
+                            <div class="column">
+                                <div class="header-section">
+                                    <img src="./icons/video.svg" />
+                                    <p class="header">Video</p>
+                                </div>
+                                <div class="options-list" id="video-list"></div>
+                            </div>
+                            <div class="column">
+                                <div class="header-section">
+                                    <img src="./icons/audio-track.svg" />
+                                    <p class="header">Audio</p>
+                                </div>
+                                <div class="options-list" id="audio-list"></div>
+                            </div>
+                            <div class="column">
+                                <div class="header-section">
+                                    <img src="./icons/speed.svg" />
+                                    <p class="header">Speed</p>
+                                </div>
+                                <div class="options-list" id="speed-list">
+                                    <div class="option-item">0.5x</div>
+                                    <div class="option-item active">1.0x</div>
+                                    <div class="option-item">1.5x</div>
+                                    <div class="option-item">2.0x</div>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="header-section">
+                                    <img src="./icons/subtitle.svg" />
+                                    <p class="header">Subtitles</p>
+                                </div>
+                                <div class="options-list" id="subtitle-list"></div>
+                            </div>
+                            <div class="column">
+                                <div class="header-section">
+                                    <img src="./icons/aspect-ratio.svg" />
+                                    <p class="header">Aspect Ratio</p>
+                                </div>
+                                <div class="options-list" id="aspect-list">
+                                    <div class="option-item active">Contain</div>
+                                    <div class="option-item">Cover</div>
+                                    <div class="option-item">Fill</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <img src="./icons/fullscreen.svg" id="fullscreen-btn" />
+                </div>
+            </div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
+        <script src="index.js"></script>
+    </body>
+</html>
