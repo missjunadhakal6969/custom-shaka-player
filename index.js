@@ -1,11 +1,44 @@
 let player, video;
 let showRemaining = false;
+
 const settingsMenu = document.getElementById('settings-menu');
 const centerControls = document.getElementById('center-controls');
 const statsPanel = document.getElementById('stats-panel');
 const progressBar = document.getElementById('progress-bar');
 const progressKnob = document.getElementById('progress-knob');
 const progressContainer = document.getElementById('progress-container');
+
+
+let hideControlsTimer;
+
+const controlsBar = document.querySelector('.controls');
+const centerControlsEl = document.getElementById('center-controls');
+const statsPanelEl = document.getElementById('stats-panel');
+
+function showAllControls() {
+    controlsBar.classList.remove('hidden');
+    centerControlsEl.classList.remove('hidden');
+    statsPanelEl.classList.remove('hidden');
+    document.body.classList.remove('controls-hidden');
+
+    resetHideTimer();
+}
+
+function hideAllControls() {
+    // Don't hide if settings menu is open
+    if (settingsMenu.classList.contains('active')) return;
+
+    controlsBar.classList.add('hidden');
+    centerControlsEl.classList.add('hidden');
+    statsPanelEl.classList.add('hidden');
+    document.body.classList.add('controls-hidden');
+}
+
+function resetHideTimer() {
+    clearTimeout(hideControlsTimer);
+    hideControlsTimer = setTimeout(hideAllControls, 3000);
+}
+
 
 async function initPlayer() {
     shaka.polyfill.installAll();
@@ -17,8 +50,16 @@ async function initPlayer() {
     // Listen for errors
     player.addEventListener('error', (e) => console.error('Shaka Error', e));
 
+	const params = new URLSearchParams(window.location.search);
+    const hlsUrl = params.get('hls');
+
+    if (!hlsUrl) {
+      alert('No HLS URL provided');
+      return;
+    }
+	
     try {
-        await player.load('https://habetar.com/stream/itIgk4ozBM9qbKRmiJOAfA/kjhhiuahiuhgihdf/1768361276/66965491/master.m3u8');
+        await player.load(decodeURIComponent(hlsUrl));
         setupUIHandlers();
         buildVideoTracks();
         buildAudioTracks();
@@ -26,7 +67,7 @@ async function initPlayer() {
         startStatsInterval();
     } catch (e) {
         console.error('Load Error', e);
-    }
+    }  	
 }
 
 function setupUIHandlers() {
@@ -44,15 +85,19 @@ function setupUIHandlers() {
 
     // Settings Toggle
     document.getElementById('setting-btn').onclick = (e) => {
-        e.stopPropagation();
-        const isActive = settingsMenu.classList.toggle('active');
-        centerControls.classList.toggle('hidden', isActive);
-        statsPanel.classList.remove('active'); // Close stats if settings open
-    };
+    e.stopPropagation();
+    const isActive = settingsMenu.classList.toggle('active');
+    centerControls.classList.toggle('hidden', isActive);
+    statsPanel.classList.remove('active');
+
+    showAllControls(); // <-- add this
+};
+
 
     // 5. Loading Indicator logic
     player.addEventListener('buffering', (e) => {
         document.getElementById('loader').style.display = e.buffering ? 'block' : 'none';
+		document.getElementById('mainPlayBtn').style.opacity = e.buffering ? 0 : 0.9;
     });
     // Info Toggle
     document.getElementById('info-btn').onclick = (e) => {
@@ -100,6 +145,21 @@ function setupUIHandlers() {
             statsPanel.classList.remove('active');
         }
     };
+	
+	const videoEl = document.getElementById('video');
+
+// Mouse + touch anywhere on video
+['mousemove', 'mousedown', 'touchstart', 'click'].forEach(evt => {
+    document.addEventListener(evt, showAllControls);
+});
+
+// Start hiding when playing
+videoEl.addEventListener('play', resetHideTimer);
+
+// Always show when paused
+videoEl.addEventListener('pause', showAllControls);
+
+	
 }
 
 document.getElementById('total-time').onclick = () => {
@@ -271,6 +331,5 @@ function startStatsInterval() {
         document.getElementById('stat-bitrate').textContent = (stats.streamBandwidth / 1000000).toFixed(2) + ' Mbps';
     }, 1000);
 }
-
 
 document.addEventListener('DOMContentLoaded', initPlayer);

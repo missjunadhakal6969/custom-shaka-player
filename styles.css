@@ -19,6 +19,11 @@ body {
     overflow: hidden;
 }
 
+body.controls-hidden {
+    cursor: none;
+}
+
+
 .player {
     position: relative;
     width: 100%;
@@ -305,4 +310,19 @@ img:hover {
     to {
         transform: translate(-50%, -50%) rotate(360deg);
     }
+}
+
+/* Hide controls */
+.controls.hidden,
+.video-center-controls.hidden,
+.video-stats.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Smooth transition */
+.controls,
+.video-center-controls,
+.video-stats {
+    transition: opacity 0.3s ease;
 }
