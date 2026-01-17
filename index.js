@@ -41,34 +41,74 @@ function resetHideTimer() {
 
 
 async function initPlayer() {
-    shaka.polyfill.installAll();
-    if (!shaka.Player.isBrowserSupported()) return;
+  shaka.polyfill.installAll();
+  if (!shaka.Player.isBrowserSupported()) return;
 
-    video = document.getElementById('video');
-    player = new shaka.Player(video);
+  const video = document.getElementById('video');
+  const player = new shaka.Player(video);
 
-    // Listen for errors
-    player.addEventListener('error', (e) => console.error('Shaka Error', e));
+  // Error listener
+  player.addEventListener('error', e => {
+    console.error('Shaka Error', e);
+  });
 
-	const params = new URLSearchParams(window.location.search);
-    const hlsUrl = params.get('hls');
+  const params = new URLSearchParams(window.location.search);
 
-    if (!hlsUrl) {
-      alert('No HLS URL provided');
-      return;
+  const hlsUrl  = params.get('hls');
+  const dashUrl = params.get('dash');
+  const keyData = params.get('key'); // format: kid:key
+
+  if (!hlsUrl && !dashUrl) {
+    alert('No stream URL provided');
+    return;
+  }
+
+  try {
+
+    /* ===========================
+       DASH + ClearKey Support
+       =========================== */
+    if (dashUrl) {
+
+      if (keyData) {
+        const [kid, key] = keyData.split(':');
+
+        if (!kid || !key) {
+          alert('Invalid ClearKey format. Use kid:key');
+          return;
+        }
+
+        player.configure({
+          drm: {
+            clearKeys: {
+              [kid]: key
+            }
+          }
+        });
+      }
+
+      await player.load(decodeURIComponent(dashUrl));
     }
-	
-    try {
-        await player.load(decodeURIComponent(hlsUrl));
-        setupUIHandlers();
-        buildVideoTracks();
-        buildAudioTracks();
-        buildSubtitleTracks();
-        startStatsInterval();
-    } catch (e) {
-        console.error('Load Error', e);
-    }  	
+
+    /* ===========================
+       HLS Support
+       =========================== */
+    else if (hlsUrl) {
+      await player.load(decodeURIComponent(hlsUrl));
+    }
+
+    // Your existing UI logic
+    setupUIHandlers();
+    buildVideoTracks();
+    buildAudioTracks();
+    buildSubtitleTracks();
+    startStatsInterval();
+
+  } catch (e) {
+    console.error('Load Error', e);
+  }
 }
+
 
 function setupUIHandlers() {
     // Play/Pause
